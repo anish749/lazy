@@ -332,8 +332,21 @@ func TestInitializedLazyVsNew(t *testing.T) {
 	}
 
 	// Call both again to verify behavior
-	nonInitializedLazy.Get()
-	initializedLazy.Get()
+	val, err := nonInitializedLazy.Get()
+	if err != nil {
+		t.Errorf("Unexpected error from second call to non-initialized lazy: %v", err)
+	}
+	if val != "computed value" {
+		t.Errorf("Expected 'computed value', got '%s'", val)
+	}
+
+	val, err = initializedLazy.Get()
+	if err != nil {
+		t.Errorf("Unexpected error from second call to initialized lazy: %v", err)
+	}
+	if val != "preset value" {
+		t.Errorf("Expected 'preset value', got '%s'", val)
+	}
 
 	// Init function still called exactly once overall
 	if atomic.LoadInt32(&counter) != 1 {

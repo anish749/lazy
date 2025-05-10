@@ -2,6 +2,8 @@ package lazy
 
 import "sync"
 
+// Lazy represents a value that is initialized on first access.
+// It ensures the initialization function is called only once, even in concurrent scenarios.
 type Lazy[T any, E error] struct {
 	once  sync.Once
 	value T
@@ -9,13 +11,15 @@ type Lazy[T any, E error] struct {
 	init  func() (T, E)
 }
 
+// NewLazy creates a new lazy value with the provided initialization function.
+// The function will be called only once when Get is first called.
 func NewLazy[T any, E error](init func() (T, E)) *Lazy[T, E] {
 	return &Lazy[T, E]{
 		init: init,
 	}
 }
 
-// A helper constructor to create a lazy that wraps an already initialized value.
+// InitializedLazy creates a lazy value that is already initialized with the given value.
 // This allows for calling funcs that can work with a lazy,
 // however we already have the value.
 func InitializedLazy[T any, E error](value T) *Lazy[T, E] {

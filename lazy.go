@@ -15,8 +15,8 @@ func NewLazy[T any, E error](init func() (T, E)) *Lazy[T, E] {
 	}
 }
 
-// A helper constructor to create a wrap an already intialized value in
-// lazy. This allows for calling funcs that can work with a lazy,
+// A helper constructor to create a lazy that wraps an already initialized value.
+// This allows for calling funcs that can work with a lazy,
 // however we already have the value.
 func InitializedLazy[T any, E error](value T) *Lazy[T, E] {
 	return &Lazy[T, E]{
@@ -41,14 +41,17 @@ type lazyType interface {
 	getAndDiscard()
 }
 
-// GetAndDiscard calls Get() but discards the results
+// getAndDiscard calls Get() but discards the results
 func (l *Lazy[T, E]) getAndDiscard() {
 	l.Get()
 }
 
-// Starts running all the lazies in parallel.
-// Doesn't return until all the lazies are done.
-// To get the values, call Get() on each lazy.
+// GoEvaluateLazies concurrently evaluates all the provided lazy values.
+// It starts each evaluation in a separate goroutine and waits for all of them to complete.
+// This function is useful for pre-computing values that will be needed later,
+// especially when dealing with computations that can be performed independently.
+// After calling this function, subsequent calls to Get() on the lazy values
+// will return immediately without blocking.
 func GoEvaluateLazies(lazies ...lazyType) {
 	wg := sync.WaitGroup{}
 	for _, lazy := range lazies {

@@ -5,10 +5,10 @@ import "sync"
 // Lazy represents a value that is initialized on first access.
 // It ensures the initialization function is called only once, even in concurrent scenarios.
 type Lazy[T any, E error] struct {
-	once  sync.Once
 	value T
 	err   E
 	init  func() (T, E)
+	once  sync.Once
 }
 
 // NewLazy creates a new lazy value with the provided initialization function.
@@ -29,14 +29,20 @@ func InitializedLazy[T any, E error](value T) *Lazy[T, E] {
 	}
 }
 
-func (l *Lazy[T, E]) Get() (T, E) {
+// Get retrieves the lazy value, initializing it on first call if needed.
+// The initialization function is guaranteed to be called at most once,
+// even when Get is called concurrently from multiple goroutines.
+// Returns the computed value and any error from initialization.
+func (l *Lazy[T, E]) Get() (value T, err E) {
 	// Skip once.Do if init is nil, meaning the value was pre-initialized
 	if l.init != nil {
 		l.once.Do(func() {
 			l.value, l.err = l.init()
 		})
 	}
-	return l.value, l.err
+	value = l.value
+	err = l.err
+	return
 }
 
 // lazyType is an interface constraint for lazy value getters

@@ -125,9 +125,7 @@ func TestMap_ChainedMaps(t *testing.T) {
 		return 42, nil
 	})
 
-	strLazy := Map(intLazy, func(i int) string {
-		return strconv.Itoa(i)
-	})
+	strLazy := Map(intLazy, strconv.Itoa)
 
 	upperLazy := Map(strLazy, func(s string) string {
 		return "VALUE: " + s
@@ -503,8 +501,8 @@ func TestMap_WithDifferentTypes(t *testing.T) {
 func TestFlatMap_DependentComputation(t *testing.T) {
 	// Simulate a real-world scenario: fetch user ID, then fetch user details
 	type User struct {
-		ID   int
 		Name string
+		ID   int
 	}
 
 	// First lazy: get user ID
@@ -533,8 +531,8 @@ func TestFlatMap_DependentComputation(t *testing.T) {
 }
 
 type customError struct {
-	Code    int
 	Message string
+	Code    int
 }
 
 func (e *customError) Error() string {
@@ -547,9 +545,7 @@ func TestMap_PreservesErrorType(t *testing.T) {
 		return 42, nil
 	})
 
-	strLazy := Map(intLazy, func(i int) string {
-		return strconv.Itoa(i)
-	})
+	strLazy := Map(intLazy, strconv.Itoa)
 
 	result, err := strLazy.Get()
 	if err != nil {
@@ -591,9 +587,7 @@ func TestGoEvaluateLazies_WithMappedLazies(t *testing.T) {
 		return 1, nil
 	})
 
-	lazy2 := Map(lazy1, func(i int) string {
-		return strconv.Itoa(i)
-	})
+	lazy2 := Map(lazy1, strconv.Itoa)
 
 	lazy3 := NewLazy(func() (int, error) {
 		atomic.AddInt32(&counter, 1)
